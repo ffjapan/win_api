@@ -9,7 +9,7 @@ bool EditBox::Create(HWND parent, int x, int y, int w, int h, int id) {
         0,
         x, y, w, h,
         parent,
-        (HMENU)id
+        (HMENU)(UINT_PTR)id
     );
 }
 
