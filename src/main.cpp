@@ -1,6 +1,7 @@
 #include "Window.hpp"
 #include "EditBox.hpp"
 #include "Checkbox.hpp"
+#include "PullDown.hpp"
 
 class MyWindow : public Window {
 protected:
@@ -22,6 +23,7 @@ protected:
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
     EditBox editbox{};
     Checkbox checkbox{};
+    PullDown pulldown{};
     // WNDCLASS 登録
     WNDCLASSW wc = {};
     wc.lpfnWndProc = MyWindow::WindowProc;
@@ -34,10 +36,11 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
     win.Create(L"MyAppClass", L"Hello", WS_OVERLAPPEDWINDOW);
     
     editbox.Create(win.Handle(), 10, 10, 100, 100, 10);
-    bool ok = checkbox.Create(win.Handle(), L"hello", 10, 150, 20);
-    if (!ok) {
-        MessageBoxW(nullptr, L"チェックボックス作成失敗", L"Error", MB_OK);
-    }
+    checkbox.Create(win.Handle(), L"hello", 10, 150, 20);
+    pulldown.Create(win.Handle(), 200, 200, 200, 200, 30);
+    pulldown.AddItem(L"要件定義");
+    pulldown.AddItem(L"基本設計");
+
     ShowWindow(win.Handle(), SW_SHOW);
 
     // メッセージループ
