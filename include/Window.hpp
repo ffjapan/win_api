@@ -20,13 +20,13 @@ public:
 
     HWND Handle() const;
 
+    static LRESULT CALLBACK WindowProc(
+        HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
+    );
 protected:
     virtual LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp);
 
 private:
     HWND hwnd_;
-public:
-    static LRESULT CALLBACK WindowProc(
-        HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
-    );
+ 
 };
