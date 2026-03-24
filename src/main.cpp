@@ -8,7 +8,7 @@ class MyWindow : public Window {
     public:
         // 作る画面を宣言する
         Login screen_login;
-        TaskViewer screen_taskviewe;
+        TaskViewer screen_taskviewer;
     protected:
         LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp) override {
             switch (msg) {
@@ -16,17 +16,17 @@ class MyWindow : public Window {
                     screen_login.Create(
                         L"MyAppClass",  // ここでメインの識別名を指定している
                         L"",
-                        WS_CHILD | WS_VISIBLE,
+                        WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                         0,
-                        0, 0, 800, 800,
+                        0, 0, 800, 800,  // x, y, w, h
                         Handle(),
                         nullptr
                     );
 
-                    screen_taskviewe.Create(
+                    screen_taskviewer.Create(
                         L"MyAppClass",
                         L"",
-                        WS_CHILD,
+                        WS_CHILD| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                         0,
                         0, 0, 800, 800,
                         Handle(),
@@ -34,18 +34,27 @@ class MyWindow : public Window {
                     );
 
                     screen_login.Show();
-                    screen_taskviewe.Hide();
+                    screen_taskviewer.Hide();
                     return 0;
 
                 case MSG_GOTO_LOGIN:
-                    screen_login.Hide();
-                    screen_taskviewe.Show();
+                    screen_taskviewer.Hide();
+                    screen_login.Show();
                     return 0;
                 
                 case MSG_GOTO_TASKVIEWER:
-                    screen_taskviewe.Hide();
-                    screen_login.Show();
+                    screen_login.Hide();
+                    screen_taskviewer.Show();
                     return 0;
+                
+                case WM_SIZE:
+                    int w = LOWORD(lp);
+                    int h = HIWORD(lp);
+
+                    MoveWindow(screen_login.Handle(), 0, 0, w, h, TRUE);
+                    MoveWindow(screen_taskviewer.Handle(), 0, 0, w, h, TRUE);
+                    return 0;
+                    
             }
             return Window::HandleMessage(msg, wp, lp);
         }
