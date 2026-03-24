@@ -1,79 +1,69 @@
 #include <windows.h>
 #include "Window.hpp"
-#include "EditBox.hpp"
-#include "Checkbox.hpp"
-#include "PullDown.hpp"
-#include "ScreenA.hpp"
-#include "ScreenB.hpp"
+#include "Login.hpp"
+#include "TaskViewer.hpp"
+#include "Message.hpp"
 
 class MyWindow : public Window {
     public:
-        ScreenA screenA;
-        ScreenB screenB;
-protected:
-    LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp) override {
-        switch (msg) {
-            case WM_CREATE:
-                screenA.Create(
-                    L"MyAppClass",
-                    L"",
-                    WS_CHILD | WS_VISIBLE,
-                    0,
-                    0, 0, 800, 800,
-                    Handle(),
-                    nullptr
-                );
+        // 作る画面を宣言する
+        Login screen_login;
+        TaskViewer screen_taskviewe;
+    protected:
+        LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp) override {
+            switch (msg) {
+                case WM_CREATE:  // ウィンドウが作られたとき
+                    screen_login.Create(
+                        L"MyAppClass",  // ここでメインの識別名を指定している
+                        L"",
+                        WS_CHILD | WS_VISIBLE,
+                        0,
+                        0, 0, 800, 800,
+                        Handle(),
+                        nullptr
+                    );
 
-                screenB.Create(
-                    L"MyAppClass",
-                    L"",
-                    WS_CHILD,
-                    0,
-                    0, 0, 800, 800,
-                    Handle(),
-                    nullptr
-                );
+                    screen_taskviewe.Create(
+                        L"MyAppClass",
+                        L"",
+                        WS_CHILD,
+                        0,
+                        0, 0, 800, 800,
+                        Handle(),
+                        nullptr
+                    );
 
-                screenA.Show();
-                screenB.Hide();
-                return 0;
+                    screen_login.Show();
+                    screen_taskviewe.Hide();
+                    return 0;
 
-            case WM_APP + 1:
-                screenA.Hide();
-                screenB.Show();
-                return 0;
-            
-            case WM_APP + 2:
-                screenB.Hide();
-                screenA.Show();
-                return 0;
+                case MSG_GOTO_LOGIN:
+                    screen_login.Hide();
+                    screen_taskviewe.Show();
+                    return 0;
+                
+                case MSG_GOTO_TASKVIEWER:
+                    screen_taskviewe.Hide();
+                    screen_login.Show();
+                    return 0;
+            }
+            return Window::HandleMessage(msg, wp, lp);
         }
-        return Window::HandleMessage(msg, wp, lp);
-    }
 };
 
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
-    // EditBox editbox{};
-    // Checkbox checkbox{};
-    // PullDown pulldown{};
-    // WNDCLASS 登録
+    /* ------------------------------------------------------------------------*/
     WNDCLASSW wc = {};
     wc.lpfnWndProc = MyWindow::WindowProc;
     wc.hInstance = hInst;
     wc.lpszClassName = L"MyAppClass";
     RegisterClassW(&wc);
+    /* ----------------------ここまでおまじないみたいな感じ-----------------------*/
 
     // ウィンドウ作成
-    MyWindow win;
-    win.Create(L"MyAppClass", L"Hello", WS_OVERLAPPEDWINDOW);
-    
-    // editbox.Create(sc1.Handle(), 10, 10, 100, 100, 10);
-    // checkbox.Create(sc1.Handle(), L"hello", 10, 150, 20);
-    // pulldown.Create(sc1.Handle(), 200, 200, 200, 200, 30);
-    // pulldown.AddItem(L"要件定義");
-    // pulldown.AddItem(L"基本設計");
-
+    MyWindow win;  // ここですべての画面構成が出来上がる
+    win.Create(L"MyAppClass", L"タスク管理システム", WS_OVERLAPPEDWINDOW);  // 第一引数が識別名。これをメインとして画面を作る
     ShowWindow(win.Handle(), SW_SHOW);
 
     // メッセージループ

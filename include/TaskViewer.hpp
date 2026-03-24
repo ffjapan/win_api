@@ -2,7 +2,7 @@
 #include "Screen.hpp"
 #include "Button.hpp"
 
-class ScreenB : public Screen {
+class TaskViewer : public Screen {
     public:
         Button btnToA;
     protected:
