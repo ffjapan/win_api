@@ -1,7 +1,9 @@
-#pragma once
+#ifndef MYWINAPI_EDITBOX_H
+#define MYWINAPI_EDITBOX_H
+
 #include <windows.h>
 #include <string>
-#include "Control.hpp"
+#include "Control.h"
 
 class EditBox : public Control {
     public:
@@ -9,3 +11,5 @@ class EditBox : public Control {
 
         std::wstring GetText();
 };
+
+#endif  // MYWINAPI_EDITBOX_H

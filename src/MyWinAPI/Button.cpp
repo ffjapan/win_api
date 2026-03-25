@@ -1,4 +1,4 @@
-#include "Button.hpp"
+#include "Button.h"
 
 bool Button::Create(HWND parent, LPCWSTR text, int x, int y, int id) {
     return CreateControl(

@@ -1,4 +1,4 @@
-#include "EditBox.hpp"
+#include "EditBox.h"
 
 bool EditBox::Create(HWND parent, int x, int y, int w, int h, int id) {
     return CreateControl(

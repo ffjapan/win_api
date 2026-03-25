@@ -1,5 +1,5 @@
-#include "Login.hpp"
-#include "Message.hpp"
+#include "Login.h"
+#include "Message.h"
 #include <windows.h>
 
 LRESULT Login::HandleMessage(UINT msg, WPARAM wp, LPARAM lp) {

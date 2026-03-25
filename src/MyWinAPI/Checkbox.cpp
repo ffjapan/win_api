@@ -1,4 +1,4 @@
-#include "Checkbox.hpp"
+#include "Checkbox.h"
 
 bool Checkbox::Create(HWND parent, LPCWSTR text, int x, int y, int id) {
     return CreateControl(

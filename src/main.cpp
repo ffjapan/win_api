@@ -1,8 +1,8 @@
 #include <windows.h>
-#include "Window.hpp"
-#include "Login.hpp"
-#include "TaskViewer.hpp"
-#include "Message.hpp"
+#include "MyWinAPI/Window.h"
+#include "Login.h"
+#include "TaskViewer.h"
+#include "Message.h"
 
 class MyWindow : public Window {
     public:

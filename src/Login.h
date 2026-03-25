@@ -1,6 +1,8 @@
-#pragma once
-#include "Screen.hpp"
-#include "Button.hpp"
+#ifndef APP_LOGIN_H
+#define APP_LOGIN_H
+
+#include "MyWinAPI/Screen.h"
+#include "MyWinAPI/Button.h"
 
 class Login : public Screen {
     public:
@@ -9,3 +11,5 @@ class Login : public Screen {
         LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp) override;
         void onResize(int w, int h) override;
 };
+
+#endif  // APP_LOGIN_H

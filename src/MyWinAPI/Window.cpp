@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "Window.h"
 
 Window::Window() : hwnd_(nullptr) {}
 

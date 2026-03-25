@@ -1,5 +1,5 @@
-#include "TaskViewer.hpp"
-#include "Message.hpp"
+#include "TaskViewer.h"
+#include "Message.h"
 #include <windows.h>
 
 LRESULT TaskViewer::HandleMessage(UINT msg, WPARAM wp, LPARAM lp) {

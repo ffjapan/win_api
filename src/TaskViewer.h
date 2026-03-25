@@ -1,6 +1,8 @@
-#pragma once
-#include "Screen.hpp"
-#include "Button.hpp"
+#ifndef APP_TASKVIEWER_H
+#define APP_TASKVIEWER_H
+
+#include "MyWinAPI/Screen.h"
+#include "MyWinAPI/Button.h"
 
 class TaskViewer : public Screen {
     public:
@@ -9,3 +11,5 @@ class TaskViewer : public Screen {
         LRESULT HandleMessage(UINT msg, WPARAM wp, LPARAM lp) override;
         void onResize(int w, int h) override;
 };
+
+#endif  // APP_TASKVIEWER_H

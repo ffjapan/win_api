@@ -1,9 +1,11 @@
-#pragma once
+#ifndef MYWINAPI_CONTROL_H
+#define MYWINAPI_CONTROL_H
+
 #include <windows.h>
 
 class Control {
     public:
-        Control() : hwnd_(nullptr) {};
+        Control() : hwnd_(nullptr) {}
         HWND Handle() const;
 
     protected:
@@ -19,3 +21,5 @@ class Control {
             HMENU id
         );
 };
+
+#endif  // MYWINAPI_CONTROL_H

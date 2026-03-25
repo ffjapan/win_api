@@ -1,4 +1,4 @@
-#include "PullDown.hpp"
+#include "PullDown.h"
 
 bool PullDown::Create(HWND parent, int x, int y, int w, int h, int id) {
     return CreateControl(
@@ -12,7 +12,7 @@ bool PullDown::Create(HWND parent, int x, int y, int w, int h, int id) {
     );
 }
 
-void PullDown::AddItem(const std::wstring& text) { 
+void PullDown::AddItem(const std::wstring& text) {
     SendMessageW(hwnd_, CB_ADDSTRING, 0, (LPARAM)text.c_str());
 }
 

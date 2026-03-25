@@ -1,4 +1,4 @@
-#include "Control.hpp"
+#include "Control.h"
 
 HWND Control::Handle() const {
     return hwnd_;

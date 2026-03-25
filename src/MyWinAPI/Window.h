@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MYWINAPI_WINDOW_H
+#define MYWINAPI_WINDOW_H
+
 #include <windows.h>
 
 class Window {
@@ -28,5 +30,6 @@ protected:
 
 private:
     HWND hwnd_;
- 
 };
+
+#endif  // MYWINAPI_WINDOW_H

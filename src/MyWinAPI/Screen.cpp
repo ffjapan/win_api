@@ -1,4 +1,4 @@
-#include "Screen.hpp"
+#include "Screen.h"
 
 void Screen::Show() {
     ShowWindow(Handle(), SW_SHOW);
@@ -16,7 +16,7 @@ LRESULT Screen::HandleMessage(UINT msg, WPARAM wp, LPARAM lp) {
             GetClientRect(Handle(), &rc);
             FillRect((HDC)wp, &rc, (HBRUSH)(COLOR_WINDOW + 1));
             return 1;
-        
+
         case WM_SIZE:
             onResize(LOWORD(lp), HIWORD(lp));
             return 0;
