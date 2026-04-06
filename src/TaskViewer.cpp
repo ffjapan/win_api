@@ -286,8 +286,10 @@ LRESULT TaskViewer::HandleMessage(UINT msg, WPARAM wp, LPARAM lp) {
                 task_list.InsertColumn(i, headers[i], widths[i]);
             }
 
-            if (!TaskRepository::LoadTasks(L"task.txt", tasks_)) {
-                MessageBoxW(Handle(), L"task.txt の読み込みに失敗しました", L"読み込みエラー", MB_OK | MB_ICONWARNING);
+            std::wstring task_file_path = TaskRepository::ResolveTaskFilePath();
+            if (!TaskRepository::LoadTasks(task_file_path, tasks_)) {
+                std::wstring msg = L"task.txt の読み込みに失敗しました。\n読み込み先: " + task_file_path;
+                MessageBoxW(Handle(), msg.c_str(), L"読み込みエラー", MB_OK | MB_ICONWARNING);
             }
 
             FillComboBoxWithAll(combo_category, GetUniqueCategories(tasks_));

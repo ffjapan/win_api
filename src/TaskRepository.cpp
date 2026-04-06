@@ -53,7 +53,42 @@ void Trim(std::wstring& value) {
     value = value.substr(start, end - start + 1);
 }
 
+std::string TrimAscii(const std::string& value) {
+    const char* ws = " \t\r\n";
+    size_t start = value.find_first_not_of(ws);
+    if (start == std::string::npos) {
+        return "";
+    }
+    size_t end = value.find_last_not_of(ws);
+    return value.substr(start, end - start + 1);
+}
+
 }  // namespace
+
+std::wstring TaskRepository::ResolveTaskFilePath() {
+    std::ifstream path_file("ShareFolderPath.txt", std::ios::binary);
+    if (!path_file) {
+        return L"task.txt";
+    }
+
+    std::string line;
+    std::getline(path_file, line);
+    line = TrimAscii(line);
+    if (line.empty()) {
+        return L"task.txt";
+    }
+
+    std::wstring directory = Utf8ToWString(line);
+    if (directory.empty()) {
+        return L"task.txt";
+    }
+
+    wchar_t last = directory.back();
+    if (last != L'\\' && last != L'/') {
+        directory += L"\\";
+    }
+    return directory + L"task.txt";
+}
 
 bool TaskRepository::LoadTasks(const std::wstring& file_path, std::vector<TaskData>& tasks) {
     std::string path_utf8 = WStringToUtf8(file_path);

@@ -7,6 +7,7 @@
 
 class TaskRepository {
     public:
+        static std::wstring ResolveTaskFilePath();
         static bool LoadTasks(const std::wstring& file_path, std::vector<TaskData>& tasks);
 };
 

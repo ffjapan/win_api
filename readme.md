@@ -1,12 +1,9 @@
-# MyWinAPI + タスクアプリ統合ガイド
+# MyWinAPI 統合版ガイド
 
-このリポジトリは、Win32 API を直接書く量を減らすための `MyWinAPI` と、  
-タスク一覧アプリ（`application` の実装）を統合したプロジェクトです。
+このプロジェクトは、`src/MyWinAPI` の共通部品を使ってタスク管理アプリを構築する構成です。  
+旧 `application` ディレクトリの実装は **すべて `src` に統合済み** です。
 
-現在は `src/` 側で動作する構成に移行済みで、`application/` は移行元として残しています。  
-最終的に `application/` を削除できるよう、機能を段階的に `src/` に集約します。
-
-## 1. 現在の構成
+## ディレクトリ構成
 
 ```text
 src/
@@ -29,10 +26,10 @@ src/
     ListView.h / ListView.cpp
 
 task.txt
-application/  (移行元、将来削除予定)
+ShareFolderPath.txt
 ```
 
-## 2. ビルド・実行
+## ビルド
 
 ```bash
 g++ src/*.cpp src/MyWinAPI/*.cpp -mwindows -municode -lcomctl32 -o app.exe
@@ -41,43 +38,70 @@ g++ src/*.cpp src/MyWinAPI/*.cpp -mwindows -municode -lcomctl32 -o app.exe
 - `-municode`: `wWinMain` を使うために必要
 - `-lcomctl32`: `ListView` など共通コントロールを使うために必要
 
-## 3. 統合済み機能（`src/TaskViewer`）
+## 画面仕様（現状）
 
-- タスク一覧（`ListView`）
+### ログイン画面 (`Login`)
+
+- ユーザ名プルダウン
+- パスワード入力欄
+- `ログインする` ボタン
+- `新規登録` ボタン（ログイン導線から離して右下配置）
+
+> 以前の `タスク一覧へ` ボタンは削除済みです。
+
+### タスク一覧画面 (`TaskViewer`)
+
+- `ListView` による一覧表示
 - 行チェックボックス
-- 分類 / 担当者 / 優先度 / ステータスの絞り込み
-- タスク名ダブルクリックで詳細ポップアップ表示
-- 進捗率カラムのカスタム描画（バー + `%` 表示）
-- `task.txt` からの読み込み（UTF-8テキスト）
+- フィルタ（分類 / 担当者 / 優先度 / ステータス）
+- タスク名ダブルクリックで詳細表示
+- 進捗率カラムのカスタム描画（バー + `%`）
 
-> なお、登録ボタン・削除ボタンの業務処理は次段階で実装する想定です。
+## task.txt の読み込み先
 
-## 4. MyWinAPI の設計方針
+`task.txt` は次のルールで決定します。
 
-### Window 層
+1. `ShareFolderPath.txt` の1行目を読む（共有フォルダのディレクトリパス）
+2. `そのディレクトリ + "\\task.txt"` を読み込む
+3. `ShareFolderPath.txt` が無い/空/不正なら、ルートの `task.txt` を使う
 
-- `Window`
-  - `CreateWindowExW` のラップ
-  - `WindowProc` と C++ オブジェクトの接続
+### `ShareFolderPath.txt` 例
 
-### Screen 層
+```text
+\\server\share\projectA
+```
 
-- `Screen`
-  - `Show()` / `Hide()`
-  - `onResize(w, h)` フック
-  - 共通背景処理
+またはローカル確認用:
 
-### Control 層
+```text
+.
+```
 
-- `Control`
-  - コントロール生成の共通基底
-  - `HWND` の保持
-- 個別部品
-  - `Button`, `Checkbox`, `EditBox`, `PullDown`, `Label`, `ListView`
+`task.txt` の保存先も同じポリシーで扱う想定です（今後の保存処理追加時に同じパス解決を利用）。
 
-## 5. 新しい画面クラスの作り方
+## MyWinAPI の主な部品
 
-### 5.1 ヘッダ作成（`src/SampleScreen.h`）
+- `Window`: Win32 ウィンドウ生成・`WindowProc` 連携
+- `Screen`: 画面単位の `Show/Hide` と `onResize`
+- `Control`: 共通コントロール基底
+- `Button`, `Checkbox`, `EditBox`, `PullDown`, `Label`, `ListView`
+
+### 追加/拡張された部品
+
+- `Label`: ラベル表示用
+- `ListView`: カラム追加、行追加、テキスト設定、拡張スタイル、ヘッダ取得
+- `PullDown`: `ClearItems`, `SetSelectedIndex`, `GetTextByIndex`, `GetSelectedText`
+- `EditBox`: `CreatePassword`（パスワード入力用）
+
+## 新しい画面を作る手順
+
+1. `src/YourScreen.h/.cpp` を作成（`Screen` 継承）
+2. `HandleMessage` で `WM_CREATE`, `WM_COMMAND`, `WM_NOTIFY` を処理
+3. `onResize` でレイアウトを再配置
+4. `src/Message.h` に遷移メッセージを追加
+5. `src/main.cpp` の親ウィンドウで画面生成と遷移切替を追加
+
+### 画面クラス例（最小）
 
 ```cpp
 #ifndef APP_SAMPLESCREEN_H
@@ -97,104 +121,31 @@ protected:
 #endif
 ```
 
-### 5.2 実装作成（`src/SampleScreen.cpp`）
-
-```cpp
-#include "SampleScreen.h"
-#include "Message.h"
-
-enum {
-    ID_BTN_BACK = 9001
-};
-
-LRESULT SampleScreen::HandleMessage(UINT msg, WPARAM wp, LPARAM lp) {
-    switch (msg) {
-        case WM_CREATE:
-            btn_back.Create(Handle(), L"戻る", 10, 10, ID_BTN_BACK);
-            return 0;
-        case WM_COMMAND:
-            if (LOWORD(wp) == ID_BTN_BACK) {
-                SendMessageW(GetParent(Handle()), MSG_GOTO_LOGIN, 0, 0);
-            }
-            return 0;
-    }
-    return Screen::HandleMessage(msg, wp, lp);
-}
-
-void SampleScreen::onResize(int w, int h) {
-    MoveWindow(btn_back.Handle(), 10, 10, 120, 30, TRUE);
-}
-```
-
-### 5.3 `main.cpp` に画面を登録
-
-1. `#include "SampleScreen.h"` を追加
-2. 親ウィンドウクラスに `SampleScreen screen_sample;` を追加
-3. `WM_CREATE` で `screen_sample.Create(...)`
-4. `Message.h` に必要な遷移メッセージを追加
-5. 親の `HandleMessage` で `Show()/Hide()` を切り替え
-
-## 6. 主要コンポーネント利用例
-
-### PullDown（新メソッド含む）
-
-```cpp
-PullDown combo;
-combo.Create(Handle(), 10, 10, 180, 300, 1001);
-combo.ClearItems();
-combo.AddItem(L"ALL");
-combo.AddItem(L"未着手");
-combo.SetSelectedIndex(0);
-std::wstring selected = combo.GetSelectedText();
-```
-
-### ListView
-
-```cpp
-ListView::InitCommonControls();
-
-ListView list;
-list.Create(Handle(), 10, 40, 600, 300, 2001);
-list.SetExtendedStyle(LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT);
-list.InsertColumn(0, L"タスク名", 240);
-list.InsertColumn(1, L"進捗率", 100);
-list.InsertItem(0, L"要件整理");
-list.SetItemText(0, 1, L"80");
-```
-
-## 7. データ読み込みの役割分離
+## 主要ユーティリティの責務
 
 - `TaskRepository`
-  - `task.txt` の読み込みと `TaskData` への変換
+  - 共有パス解決 (`ResolveTaskFilePath`)
+  - ファイル読み込み (`LoadTasks`)
 - `TaskFilter`
-  - フィルタ用ユニーク値生成（分類/担当者/優先度/ステータス）
+  - フィルタ候補のユニーク値生成
 - `TaskViewer`
-  - UI描画・イベント処理・フィルタ適用
+  - UI表示、イベント処理、フィルタ反映
 
-この分離により、将来 `TaskCreateScreen` を追加しても  
-データ処理を再利用しやすい構成になっています。
+## 現在未実装の業務処理
 
-## 8. `application/` からの移行ポリシー
+- ログイン認証の本処理
+- 新規登録画面/登録処理
+- タスク登録・削除の本処理
+- `task.txt` への保存処理
 
-- `application` は **参照元** として扱う
-- 新規実装はすべて `src/` 側に置く
-- `application` 側にしかないロジックがゼロになった時点で削除する
+## トラブルシュート
 
-## 9. 今後の拡張予定（推奨）
-
-1. 登録画面 (`TaskCreateScreen`) を `Screen` として追加
-2. 作成処理（CSV追記）を `TaskRepository` に追加
-3. 登録完了ポップアップ後に一覧再読込
-4. 削除ボタンの実処理
-5. レイアウトヘルパ（座標直書きの削減）
-
-## 10. トラブルシュート
-
+- `task.txt` を読めない
+  - `ShareFolderPath.txt` の1行目が正しいディレクトリか確認
+  - そのディレクトリに `task.txt` が存在するか確認
 - `ListView` が表示されない
-  - `ListView::InitCommonControls()` 呼び出しを確認
-  - ビルドオプションに `-lcomctl32` があるか確認
-- 文字化けする
-  - `L"..."` のワイド文字列を使う
-  - UTF-8 で `task.txt` を保存する
-- コンボ変更で絞り込まれない
-  - `WM_COMMAND` で `CBN_SELCHANGE` を処理しているか確認
+  - `-lcomctl32` が付いているか確認
+  - `ListView::InitCommonControls()` が呼ばれているか確認
+- 日本語が崩れる
+  - ファイルを UTF-8 で保存
+  - 文字列は `L"..."` を使う

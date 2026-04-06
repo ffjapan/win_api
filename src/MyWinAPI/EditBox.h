@@ -8,6 +8,7 @@
 class EditBox : public Control {
     public:
         bool Create(HWND parent, int x, int y, int w, int h, int id);
+        bool CreatePassword(HWND parent, int x, int y, int w, int h, int id);
 
         std::wstring GetText();
 };
